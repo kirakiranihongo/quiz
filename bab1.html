@@ -44,11 +44,11 @@ button {
   <p id="progress"></p>
 
   <div id="quiz"></div>
-
-  <button onclick="finishQuiz()">Selesai</button>
 </div>
 
 <script>
+let quizFinished = false;
+
 function shuffle(array){
   for(let i=array.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
@@ -120,8 +120,10 @@ let index = 0;
 let score = 0;
 
 function loadQuestion(){
+  if (quizFinished) return;
+
   if(index >= questions.length){
-    document.getElementById("quiz").innerHTML = "<h3>Semua soal selesai!</h3>";
+    finishQuiz();
     return;
   }
 
@@ -138,6 +140,8 @@ function loadQuestion(){
 }
 
 function checkAnswer(ans, el){
+  if (quizFinished) return;
+
   let correct = questions[index].id;
   if(ans === correct){
     el.classList.add("correct");
@@ -148,11 +152,12 @@ function checkAnswer(ans, el){
   index++;
   setTimeout(loadQuestion, 600);
 }
+
 function finishQuiz() {
-  // Simpan nilai ke Firebase
+  quizFinished = true;
+
   saveScore("bab1", score);
 
-  // Tampilkan nilai langsung di halaman
   document.getElementById("quiz").innerHTML = `
     <div class="question-box">
       <h3>Kuis Selesai!</h3>
@@ -160,6 +165,11 @@ function finishQuiz() {
     </div>
   `;
 
-  // Update progress
   document.getElementById("progress").innerText = "Selesai";
 }
+
+loadQuestion();
+</script>
+
+</body>
+</html>
