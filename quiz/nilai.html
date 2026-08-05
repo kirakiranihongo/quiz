@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Nilai Kamu – Kirakira Nihongo</title>
+
+<script type="module" src="firebase.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family:"Noto Sans JP",sans-serif;
+  background:linear-gradient(135deg,#f7dde2,#d7eaf8,#e6d9f8);
+  padding:20px;
+}
+.container {
+  max-width:600px;margin:auto;background:#fff;padding:25px;border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.15);
+  text-align:center;
+}
+h2 { color:#2f3a56; }
+.score-box {
+  background:#f0f4ff;padding:20px;border-radius:15px;margin-top:20px;
+  font-size:22px;font-weight:bold;
+}
+button {
+  margin-top:20px;padding:12px 20px;border:none;border-radius:10px;
+  background:#2f3a56;color:white;font-size:16px;cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Nilai Kamu</h2>
+
+  <div id="score" class="score-box">Memuat nilai...</div>
+
+  <button onclick="location.href='quiz.html'">Kembali ke Menu Kuis</button>
+</div>
+
+<script type="module">
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { get, ref } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    document.getElementById("score").innerText = "Silakan login terlebih dahulu.";
+    return;
+  }
+
+  const snap = await get(ref(db, "users/" + user.uid));
+  const data = snap.val();
+
+  let nilai = data?.score_bab1 ?? "Belum ada nilai";
+
+  document.getElementById("score").innerText = "Nilai Bab 1: " + nilai + " / 35";
+});
+</script>
+
+</body>
+</html>
