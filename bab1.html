@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Kuis Bab 1 – Kirakira Nihongo</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family:"Noto Sans JP",sans-serif;
+  background:linear-gradient(135deg,#f7dde2,#d7eaf8,#e6d9f8);
+  padding:20px;
+}
+.container {
+  max-width:800px;margin:auto;background:#fff;padding:25px;border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.15);
+}
+h2 { color:#2f3a56; }
+.question-box {
+  background:#f0f4ff;padding:15px;border-radius:12px;margin-top:15px;
+}
+button {
+  width:100%;padding:12px;border-radius:10px;border:none;background:#2f3a56;
+  color:white;font-size:16px;cursor:pointer;margin-top:20px;
+}
+.option {
+  background:#fff;border:1px solid #ccc;padding:10px;border-radius:10px;
+  margin:8px 0;cursor:pointer;
+}
+.option:hover { background:#e6d9f8; }
+.correct { background:#c8f7c5 !important; }
+.wrong { background:#f7c5c5 !important; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Kuis Bab 1 – Minna no Nihongo</h2>
+  <p id="progress"></p>
+
+  <div id="quiz"></div>
+
+  <button onclick="finishQuiz()">Selesai</button>
+</div>
+
+<script>
+let questions = [
+
+/* ============================
+   10 SOAL KOSAKATA
+============================ */
+{jp:"わたし", id:"saya", options:["saya","kamu","dia","mereka"]},
+{jp:"かいしゃいん", id:"pegawai perusahaan", options:["pegawai perusahaan","guru","dokter","pelajar"]},
+{jp:"がくせい", id:"pelajar", options:["pelajar","pegawai","dokter","karyawan"]},
+{jp:"せんせい", id:"guru", options:["guru","murid","dokter","pegawai"]},
+{jp:"いしゃ", id:"dokter", options:["dokter","guru","pelajar","pegawai"]},
+{jp:"にほんじん", id:"orang Jepang", options:["orang Jepang","orang Amerika","orang Indonesia","orang Cina"]},
+{jp:"かた", id:"orang (sopan)", options:["orang (sopan)","teman","guru","pegawai"]},
+{jp:"ともだち", id:"teman", options:["teman","guru","dokter","pelajar"]},
+{jp:"IMC", id:"nama perusahaan", options:["nama perusahaan","nama orang","nama kota","nama sekolah"]},
+{jp:"ABC", id:"nama perusahaan", options:["nama perusahaan","nama orang","nama kota","nama sekolah"]},
+
+/* ============================
+   10 SOAL PARTIKEL
+============================ */
+{jp:"わたし ___ かいしゃいん です。", id:"は", options:["は","が","を","に"]},
+{jp:"ミラーさん は かいしゃいん ___ ありません。", id:"じゃ", options:["じゃ","は","を","に"]},
+{jp:"あの ひと ___ どなた ですか。", id:"は", options:["は","が","を","に"]},
+{jp:"サントスさん ___ がくせい です。", id:"は", options:["は","も","を","に"]},
+{jp:"わたし は IMC ___ しゃいん です。", id:"の", options:["の","は","を","に"]},
+{jp:"ミラーさん ___ かいしゃいん です。", id:"は", options:["は","も","を","に"]},
+{jp:"かれ ___ せんせい ですか。", id:"は", options:["は","が","を","に"]},
+{jp:"わたし ___ にほんじん です。", id:"は", options:["は","が","を","に"]},
+{jp:"あの かた ___ どなた ですか。", id:"は", options:["は","が","を","に"]},
+{jp:"サントスさん ___ かいしゃいん です。", id:"は", options:["は","も","を","に"]},
+
+/* ============================
+   5 SOAL ARTI KALIMAT
+============================ */
+{jp:"わたし は にほんじん です。", id:"Saya orang Jepang", options:["Saya orang Jepang","Saya orang Amerika","Saya guru","Saya pelajar"]},
+{jp:"ミラーさん は かいしゃいん です。", id:"Tuan Miller adalah pegawai perusahaan", options:["Tuan Miller adalah pegawai perusahaan","Tuan Miller adalah dokter","Tuan Miller adalah guru","Tuan Miller adalah pelajar"]},
+{jp:"あの ひと は どなた ですか。", id:"Siapakah orang itu?", options:["Siapakah orang itu?","Di mana orang itu?","Apa itu?","Siapa nama kamu?"]},
+{jp:"サントスさん は がくせい じゃありません。", id:"Santos bukan pelajar", options:["Santos bukan pelajar","Santos adalah pelajar","Santos adalah guru","Santos adalah dokter"]},
+{jp:"わたし は IMC の しゃいん です。", id:"Saya pegawai IMC", options:["Saya pegawai IMC","Saya pegawai ABC","Saya guru","Saya dokter"]},
+
+/* ============================
+   5 SOAL SUSUN KALIMAT
+============================ */
+{jp:"(です / わたし / にほんじん)", id:"わたし は にほんじん です", options:["わたし は にほんじん です","にほんじん は わたし です","です は わたし にほんじん","わたし にほんじん は です"]},
+{jp:"(です / かいしゃいん / ミラーさん)", id:"ミラーさん は かいしゃいん です", options:["ミラーさん は かいしゃいん です","かいしゃいん は ミラーさん です","です は ミラーさん かいしゃいん","ミラーさん です は かいしゃいん"]},
+{jp:"(どなた / あの ひと / です か)", id:"あの ひと は どなた です か", options:["あの ひと は どなた です か","どなた は あの ひと です か","です か は あの ひと どなた","あの ひと どなた は です か"]},
+{jp:"(じゃありません / がくせい / サントスさん)", id:"サントスさん は がくせい じゃありません", options:["サントスさん は がくせい じゃありません","がくせい は サントスさん じゃありません","じゃありません は サントスさん がくせい","サントスさん がくせい は じゃありません"]},
+{jp:"(しゃいん / IMC / わたし / の / です)", id:"わたし は IMC の しゃいん です", options:["わたし は IMC の しゃいん です","IMC の わたし は しゃいん です","しゃいん は わたし の IMC です","わたし の です は IMC しゃいん"]},
+
+/* ============================
+   5 CERITA PANJANG (PECAH 5 SOAL)
+============================ */
+{jp:"たなかさん ___ にほんじん です。", id:"は", options:["は","が","を","に"]},
+{jp:"かれ は ABC の かいしゃいん ___ ありません。", id:"じゃ", options:["じゃ","は","を","に"]},
+{jp:"あの ひと ___ どなた ですか。", id:"は", options:["は","が","を","に"]},
+{jp:"ミラーさん ___ かいしゃいん です。", id:"は", options:["は","も","を","に"]},
+{jp:"たなかさん は ミラーさん ___ ともだち です。", id:"の", options:["の","は","を","に"]}
+
+];
+
+let index = 0;
+let score = 0;
+
+function loadQuestion(){
+  if(index >= questions.length){
+    document.getElementById("quiz").innerHTML = "<h3>Semua soal selesai!</h3>";
+    return;
+  }
+
+  let q = questions[index];
+  document.getElementById("progress").innerText = "Soal " + (index+1) + " dari 35";
+
+  let html = `
+    <div class='question-box'>
+      <p><b>${q.jp}</b></p>
+      ${q.options.map(o=>`<div class='option' onclick='checkAnswer("${o}", this)'>${o}</div>`).join("")}
+    </div>
+  `;
+  document.getElementById("quiz").innerHTML = html;
+}
+
+function checkAnswer(ans, el){
+  let correct = questions[index].id;
+  if(ans === correct){
+    el.classList.add("correct");
+    score++;
+  } else {
+    el.classList.add("wrong");
+  }
+  index++;
+  setTimeout(loadQuestion, 600);
+}
+
+function finishQuiz(){
+  localStorage.setItem("nilai_bab1", score);
+  alert("Nilai kamu: " + score + " / 35");
+  location.href="nilai.html";
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>

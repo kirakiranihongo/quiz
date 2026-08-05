@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Nilai Murid – Kirakira Nihongo</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body {
+  font-family:"Noto Sans JP",sans-serif;
+  background:linear-gradient(135deg,#f7dde2,#d7eaf8,#e6d9f8);
+  padding:30px;
+}
+.container {
+  max-width:900px;margin:auto;background:#fff;padding:25px;border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.15);
+}
+.badge {
+  display:inline-block;background:#ffd966;padding:8px 14px;border-radius:999px;margin:5px;font-weight:bold;
+}
+button {
+  margin-top:20px;padding:12px;border-radius:10px;border:none;background:#2f3a56;color:white;cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2 style="color:#2f3a56;">Nilai Murid – Kirakira Nihongo</h2>
+  <p id="nama"></p>
+
+  <h3>📘 Nilai Bab 1</h3>
+  <p id="nilai1"></p>
+
+  <h3>📊 Grafik Nilai Bab 1</h3>
+  <canvas id="chartBab"></canvas>
+
+  <h3>🎌 Level Kirakira Nihongo</h3>
+  <p id="level"></p>
+
+  <h3>🏅 Badge Pencapaian</h3>
+  <div id="badgeBox"></div>
+
+  <h3>📈 Progress Belajar</h3>
+  <p id="progress"></p>
+
+  <h3>⭐ Ranking Pribadi</h3>
+  <p id="rank"></p>
+
+  <button onclick="location.href='quiz.html'">Kembali ke Menu</button>
+</div>
+
+<script>
+document.getElementById("nama").innerText="Nama: "+(localStorage.getItem("murid")||"Belum login");
+
+let nilaiBab1 = parseInt(localStorage.getItem("nilai_bab1")||0);
+document.getElementById("nilai1").innerText = nilaiBab1 + " / 35";
+
+// Grafik batang Bab 1
+new Chart(document.getElementById("chartBab"), {
+  type: 'bar',
+  data: {
+    labels: ["Bab 1"],
+    datasets: [{
+      label: "Nilai",
+      data: [nilaiBab1],
+      backgroundColor: "#f7a8b8"
+    }]
+  }
+});
+
+// Level
+let level = nilaiBab1 >= 30 ? "Level Sakura 2" : "Level Sakura 1";
+document.getElementById("level").innerText = level;
+
+// Badge
+let badgeBox = document.getElementById("badgeBox");
+if (nilaiBab1 >= 30) badgeBox.innerHTML += `<span class="badge">Perfect Bab 1</span>`;
+if (nilaiBab1 >= 20) badgeBox.innerHTML += `<span class="badge">Bab 1 Completed</span>`;
+
+// Progress
+document.getElementById("progress").innerText = "1 dari 25 bab selesai (4%)";
+
+// Ranking pribadi
+let rank = nilaiBab1 >= 30 ? "Samurai Nihongo" :
+           nilaiBab1 >= 25 ? "Fuji Learner" :
+           nilaiBab1 >= 15 ? "Sakura Learner" :
+           "Pemula Kirakira";
+document.getElementById("rank").innerText = rank;
+</script>
+
+</body>
+</html>
