@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>Kuis Bab 1 – Kirakira Nihongo</title>
+
+<!-- Firebase -->
+<script type="module" src="firebase.js"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
@@ -45,62 +49,70 @@ button {
 </div>
 
 <script>
+function shuffle(array){
+  for(let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]];
+  }
+  return array;
+}
+
 let questions = [
 
 /* ============================
    10 SOAL KOSAKATA
 ============================ */
-{jp:"わたし", id:"saya", options:["saya","kamu","dia","mereka"]},
-{jp:"かいしゃいん", id:"pegawai perusahaan", options:["pegawai perusahaan","guru","dokter","pelajar"]},
-{jp:"がくせい", id:"pelajar", options:["pelajar","pegawai","dokter","karyawan"]},
-{jp:"せんせい", id:"guru", options:["guru","murid","dokter","pegawai"]},
-{jp:"いしゃ", id:"dokter", options:["dokter","guru","pelajar","pegawai"]},
-{jp:"にほんじん", id:"orang Jepang", options:["orang Jepang","orang Amerika","orang Indonesia","orang Cina"]},
-{jp:"かた", id:"orang (sopan)", options:["orang (sopan)","teman","guru","pegawai"]},
-{jp:"ともだち", id:"teman", options:["teman","guru","dokter","pelajar"]},
-{jp:"IMC", id:"nama perusahaan", options:["nama perusahaan","nama orang","nama kota","nama sekolah"]},
-{jp:"ABC", id:"nama perusahaan", options:["nama perusahaan","nama orang","nama kota","nama sekolah"]},
+{jp:"わたし", id:"saya", options:shuffle(["saya","kamu","dia","mereka"])},
+{jp:"かいしゃいん", id:"pegawai perusahaan", options:shuffle(["pegawai perusahaan","guru","dokter","pelajar"])},
+{jp:"がくせい", id:"pelajar", options:shuffle(["pelajar","pegawai","dokter","karyawan"])},
+{jp:"せんせい", id:"guru", options:shuffle(["guru","murid","dokter","pegawai"])},
+{jp:"いしゃ", id:"dokter", options:shuffle(["dokter","guru","pelajar","pegawai"])},
+{jp:"にほんじん", id:"orang Jepang", options:shuffle(["orang Jepang","orang Amerika","orang Indonesia","orang Cina"])},
+{jp:"かた", id:"orang (sopan)", options:shuffle(["orang (sopan)","teman","guru","pegawai"])},
+{jp:"ともだち", id:"teman", options:shuffle(["teman","guru","dokter","pelajar"])},
+{jp:"IMC", id:"nama perusahaan", options:shuffle(["nama perusahaan","nama orang","nama kota","nama sekolah"])},
+{jp:"ABC", id:"nama perusahaan", options:shuffle(["nama perusahaan","nama orang","nama kota","nama sekolah"])},
 
 /* ============================
    10 SOAL PARTIKEL
 ============================ */
-{jp:"わたし ___ かいしゃいん です。", id:"は", options:["は","が","を","に"]},
-{jp:"ミラーさん は かいしゃいん ___ ありません。", id:"じゃ", options:["じゃ","は","を","に"]},
-{jp:"あの ひと ___ どなた ですか。", id:"は", options:["は","が","を","に"]},
-{jp:"サントスさん ___ がくせい です。", id:"は", options:["は","も","を","に"]},
-{jp:"わたし は IMC ___ しゃいん です。", id:"の", options:["の","は","を","に"]},
-{jp:"ミラーさん ___ かいしゃいん です。", id:"は", options:["は","も","を","に"]},
-{jp:"かれ ___ せんせい ですか。", id:"は", options:["は","が","を","に"]},
-{jp:"わたし ___ にほんじん です。", id:"は", options:["は","が","を","に"]},
-{jp:"あの かた ___ どなた ですか。", id:"は", options:["は","が","を","に"]},
-{jp:"サントスさん ___ かいしゃいん です。", id:"は", options:["は","も","を","に"]},
+{jp:"わたし ___ かいしゃいん です。", id:"は", options:shuffle(["は","が","を","に"])},
+{jp:"ミラーさん は かいしゃいん ___ ありません。", id:"じゃ", options:shuffle(["じゃ","は","を","に"])},
+{jp:"あの ひと ___ どなた ですか。", id:"は", options:shuffle(["は","が","を","に"])},
+{jp:"サントスさん ___ がくせい です。", id:"は", options:shuffle(["は","も","を","に"])},
+{jp:"わたし は IMC ___ しゃいん です。", id:"の", options:shuffle(["の","は","を","に"])},
+{jp:"ミラーさん ___ かいしゃいん です。", id:"は", options:shuffle(["は","も","を","に"])},
+{jp:"かれ ___ せんせい ですか。", id:"は", options:shuffle(["は","が","を","に"])},
+{jp:"わたし ___ にほんじん です。", id:"は", options:shuffle(["は","が","を","に"])},
+{jp:"あの かた ___ どなた ですか。", id:"は", options:shuffle(["は","が","を","に"])},
+{jp:"サントスさん ___ かいしゃいん です。", id:"は", options:shuffle(["は","も","を","に"])},
 
 /* ============================
    5 SOAL ARTI KALIMAT
 ============================ */
-{jp:"わたし は にほんじん です。", id:"Saya orang Jepang", options:["Saya orang Jepang","Saya orang Amerika","Saya guru","Saya pelajar"]},
-{jp:"ミラーさん は かいしゃいん です。", id:"Tuan Miller adalah pegawai perusahaan", options:["Tuan Miller adalah pegawai perusahaan","Tuan Miller adalah dokter","Tuan Miller adalah guru","Tuan Miller adalah pelajar"]},
-{jp:"あの ひと は どなた ですか。", id:"Siapakah orang itu?", options:["Siapakah orang itu?","Di mana orang itu?","Apa itu?","Siapa nama kamu?"]},
-{jp:"サントスさん は がくせい じゃありません。", id:"Santos bukan pelajar", options:["Santos bukan pelajar","Santos adalah pelajar","Santos adalah guru","Santos adalah dokter"]},
-{jp:"わたし は IMC の しゃいん です。", id:"Saya pegawai IMC", options:["Saya pegawai IMC","Saya pegawai ABC","Saya guru","Saya dokter"]},
+{jp:"わたし は にほんじん です。", id:"Saya orang Jepang", options:shuffle(["Saya orang Jepang","Saya orang Amerika","Saya guru","Saya pelajar"])},
+{jp:"ミラーさん は かいしゃいん です。", id:"Tuan Miller adalah pegawai perusahaan", options:shuffle(["Tuan Miller adalah pegawai perusahaan","Tuan Miller adalah dokter","Tuan Miller adalah guru","Tuan Miller adalah pelajar"])},
+{jp:"あの ひと は どなた ですか。", id:"Siapakah orang itu?", options:shuffle(["Siapakah orang itu?","Di mana orang itu?","Apa itu?","Siapa nama kamu?"])},
+{jp:"サントスさん は がくせい じゃありません。", id:"Santos bukan pelajar", options:shuffle(["Santos bukan pelajar","Santos adalah pelajar","Santos adalah guru","Santos adalah dokter"])},
+{jp:"わたし は IMC の しゃいん です。", id:"Saya pegawai IMC", options:shuffle(["Saya pegawai IMC","Saya pegawai ABC","Saya guru","Saya dokter"])},
 
 /* ============================
    5 SOAL SUSUN KALIMAT
 ============================ */
-{jp:"(です / わたし /は/ にほんじん)", id:"わたし は にほんじん です", options:["わたし は にほんじん です","にほんじん は わたし です","です は わたし にほんじん","わたし にほんじん は です"]},
-{jp:"(です / かいしゃいん /は/ ミラーさん)", id:"ミラーさん は かいしゃいん です", options:["ミラーさん は かいしゃいん です","かいしゃいん は ミラーさん です","です は ミラーさん かいしゃいん","ミラーさん です は かいしゃいん"]},
-{jp:"(どなた / あの ひと /は/ です か)", id:"あの ひと は どなた です か", options:["あの ひと は どなた です か","どなた は あの ひと です か","です か は あの ひと どなた","あの ひと どなた は です か"]},
-{jp:"(じゃありません/は / がくせい / サントスさん)", id:"サントスさん は がくせい じゃありません", options:["サントスさん は がくせい じゃありません","がくせい は サントスさん じゃありません","じゃありません は サントスさん がくせい","サントスさん がくせい は じゃありません"]},
-{jp:"(しゃいん/は / IMC / わたし / の / です)", id:"わたし は IMC の しゃいん です", options:["わたし は IMC の しゃいん です","IMC の わたし は しゃいん です","しゃいん は わたし の IMC です","わたし の です は IMC しゃいん"]},
+{jp:"(です / わたし /は/ にほんじん)", id:"わたし は にほんじん です", options:shuffle(["わたし は にほんじん です","にほんじん は わたし です","です は わたし にほんじん","わたし にほんじん は です"])},
+{jp:"(です / かいしゃいん /は/ ミラーさん)", id:"ミラーさん は かいしゃいん です", options:shuffle(["ミラーさん は かいしゃいん です","かいしゃいん は ミラーさん です","です は ミラーさん かいしゃいん","ミラーさん です は かいしゃいん"])},
+{jp:"(どなた / あの ひと /は/ です か)", id:"あの ひと は どなた です か", options:shuffle(["あの ひと は どなた です か","どなた は あの ひと です か","です か は あの ひと どなた","あの ひと どなた は です か"])},
+{jp:"(じゃありません/は / がくせい / サントスさん)", id:"サントスさん は がくせい じゃありません", options:shuffle(["サントスさん は がくせい じゃありません","がくせい は サントスさん じゃありません","じゃありません は サントスさん がくせい","サントスさん がくせい は じゃありません"])},
+{jp:"(しゃいん/は / IMC / わたし / の / です)", id:"わたし は IMC の しゃいん です", options:shuffle(["わたし は IMC の しゃいん です","IMC の わたし は しゃいん です","しゃいん は わたし の IMC です","わたし の です は IMC しゃいん"])},
 
 /* ============================
-   5 CERITA PANJANG (PECAH 5 SOAL)
+   5 CERITA PANJANG
 ============================ */
-{jp:"たなかさん ___ にほんじん です。", id:"は", options:["は","が","を","に"]},
-{jp:"かれ は ABC の かいしゃいん ___ ありません。", id:"じゃ", options:["じゃ","は","を","に"]},
-{jp:"あの ひと ___ どなた ですか。", id:"は", options:["は","が","を","に"]},
-{jp:"ミラーさん ___ かいしゃいん です。", id:"は", options:["は","も","を","に"]},
-{jp:"たなかさん は ミラーさん ___ ともだち です。", id:"の", options:["の","は","を","に"]}
+{jp:"たなかさん ___ にほんじん です。", id:"は", options:shuffle(["は","が","を","に"])},
+{jp:"かれ は ABC の かいしゃいん ___ ありません。", id:"じゃ", options:shuffle(["じゃ","は","を","に"])},
+{jp:"あの ひと ___ どなた ですか。", id:"は", options:shuffle(["は","が","を","に"])},
+{jp:"ミラーさん ___ かいしゃいん です。", id:"は", options:shuffle(["は","も","を","に"])},
+{jp:"たなかさん は ミラーさん ___ ともだち です。", id:"の", options:shuffle(["の","は","を","に"])}
 
 ];
 
@@ -138,7 +150,7 @@ function checkAnswer(ans, el){
 }
 
 function finishQuiz(){
-  localStorage.setItem("nilai_bab1", score);
+  saveScore("bab1", score);   // ⬅ MASUK FIREBASE
   alert("Nilai kamu: " + score + " / 35");
   location.href="nilai.html";
 }
