@@ -15,18 +15,29 @@ body {
   padding:20px;
 }
 .container {
-  max-width:800px;margin:auto;background:#fff;padding:25px;border-radius:20px;
+  max-width:900px;margin:auto;background:#fff;padding:25px;border-radius:20px;
   box-shadow:0 10px 30px rgba(0,0,0,0.15);
 }
-h2 { color:#2f3a56;text-align:center; }
+h2 { 
+  color:#2f3a56;
+  text-align:center;
+  margin-bottom:20px;
+}
 table {
-  width:100%;border-collapse:collapse;margin-top:20px;
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
 }
 th, td {
-  border:1px solid #ccc;padding:10px;text-align:center;
+  border:1px solid #ccc;
+  padding:10px;
+  text-align:center;
 }
 th {
   background:#f0f4ff;
+}
+tr:nth-child(even){
+  background:#fafafa;
 }
 </style>
 </head>
@@ -34,7 +45,7 @@ th {
 <body>
 
 <div class="container">
-  <h2>Daftar Nilai Murid</h2>
+  <h2>Daftar Nilai Murid – Admin</h2>
 
   <table>
     <thead>
@@ -54,7 +65,12 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/fi
 import { get, ref } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
+  if (!user) {
+    document.getElementById("data").innerHTML = `
+      <tr><td colspan="3">Silakan login sebagai admin.</td></tr>
+    `;
+    return;
+  }
 
   const snap = await get(ref(db, "users"));
   const users = snap.val();
