@@ -148,15 +148,19 @@ function checkAnswer(ans, el){
   index++;
   setTimeout(loadQuestion, 600);
 }
+function finishQuiz() {
+  // Simpan nilai ke Firebase
+  saveScore("bab1", score);
 
-function finishQuiz(){
-  saveScore("bab1", score);   // ⬅ MASUK FIREBASE
-  alert("Nilai kamu: " + score + " / 35");
-  location.href="nilai.html";
+  // Tampilkan nilai langsung di halaman
+  document.getElementById("quiz").innerHTML = `
+    <div class="question-box">
+      <h3>Kuis Selesai!</h3>
+      <p>Nilai Kamu: <b>${score} / 35</b></p>
+    </div>
+  `;
+
+  // Update progress
+  document.getElementById("progress").innerText = "Selesai";
 }
 
-loadQuestion();
-</script>
-
-</body>
-</html>
