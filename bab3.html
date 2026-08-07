@@ -4,54 +4,17 @@
 <meta charset="UTF-8">
 <title>Kuis Bab 3 – Kirakira Nihongo</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<script type="module" src="firebase.js"></script>
-
 <style>
-body {
-  font-family:"Noto Sans JP",sans-serif;
-  background:#f7d2e2;
-  padding:20px;
-}
-.container {
-  max-width:800px;
-  margin:auto;
-  background:#fff;
-  padding:25px;
-  border-radius:20px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.15);
-}
-h2 {
-  text-align:center;
-  color:#2f3a56;
-}
-h3 {
-  margin-top:25px;
-  color:#2f3a56;
-}
-.question {
-  margin-bottom:15px;
-}
-.options label {
-  display:block;
-}
-button {
-  margin-top:20px;
-  padding:12px 20px;
-  border:none;
-  border-radius:10px;
-  background:#2f3a56;
-  color:white;
-  cursor:pointer;
-}
-.result {
-  margin-top:20px;
-  font-weight:bold;
-}
+body { font-family:"Noto Sans JP",sans-serif; background:#f7d2e2; padding:20px; }
+.container { max-width:800px; margin:auto; background:#fff; padding:25px; border-radius:20px; }
+.question { margin-bottom:15px; }
+.options label { display:block; }
+button { margin-top:20px; padding:12px 20px; border:none; border-radius:10px; background:#2f3a56; color:white; cursor:pointer; }
+.result { margin-top:20px; font-weight:bold; }
 </style>
 </head>
 
 <body>
-
 <div class="container">
   <h2>Kuis Bab 3 – Kirakira Nihongo</h2>
 
@@ -75,9 +38,8 @@ button {
 </div>
 
 <script type="module">
-import { auth, db } from "./firebase.js";
+import { auth, db, saveScore } from "../firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { ref, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const soalA = [
   {q:"ここ＿＿ じむしょです。", opts:["は","を","に","が"], ans:"a"},
@@ -103,7 +65,7 @@ const soalA = [
 ];
 
 const soalB = [
-  {q:"＿＿は じむしょ ですか。", opts:["ここ","あそこ","こちら","どこ"], ans:"a"},
+  {q:"＿＿は じむしょ ですか.", opts:["ここ","あそこ","こちら","どこ"], ans:"a"},
   {q:"がっこうは ＿＿ですか。", opts:["どこ","どちら","あそこ","こちら"], ans:"b"},
   {q:"これは 日本＿＿ コンピューターです。", opts:["の","に","を","が"], ans:"a"},
   {q:"こちらは かいぎしつ＿＿ です。", opts:["は","に","を","で"], ans:"a"},
@@ -161,7 +123,7 @@ onAuthStateChanged(auth, (user) => {
   currentUser = user;
 });
 
-document.getElementById("submitBtn").addEventListener("click", async () => {
+document.getElementById("submitBtn").addEventListener("click", () => {
   let score = 0;
 
   function checkSection(questions, prefix) {
@@ -180,15 +142,10 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   checkSection(soalC, "C");
   checkSection(soalD, "D");
 
-  const resultDiv = document.getElementById("result");
-  resultDiv.innerText = `Nilai kamu: ${score} / 40`;
+  document.getElementById("result").innerText = `Nilai kamu: ${score} / 40`;
 
   if (!currentUser) return;
-
-  await set(ref(db, "nilai/" + currentUser.uid + "/bab3"), {
-    nilai: score,
-    tanggal: new Date().toISOString()
-  });
+  saveScore(3, score); // BAB 3
 });
 </script>
 
