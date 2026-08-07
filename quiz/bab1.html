@@ -4,316 +4,60 @@
 <meta charset="UTF-8">
 <title>Kuis Bab 1 – Kirakira Nihongo</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
 <style>
-body {
-    font-family: "Noto Sans JP", sans-serif;
-    background: #f7dde2;
-    padding: 20px;
-}
-.container {
-    max-width: 700px;
-    margin: auto;
-    background: #fff;
-    padding: 25px;
-    border-radius: 20px;
-}
-button {
-    padding: 12px 20px;
-    background: #2f3a56;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    margin-top: 15px;
-}
-button:hover {
-    background: #445075;
-}
+body { font-family:"Noto Sans JP"; background:#f7d2e2; padding:20px; }
+.container { max-width:800px; margin:auto; background:#fff; padding:25px; border-radius:20px; }
+.question { margin-bottom:15px; }
+.options label { display:block; }
+button { margin-top:20px; padding:12px; background:#2f3a56; color:white; border:none; border-radius:10px; }
+.result { margin-top:20px; font-weight:bold; }
 </style>
 </head>
+
 <body>
-
 <div class="container">
-    <h2>Kuis Bab 1 – Kirakira Nihongo</h2>
-    <p id="progress"></p>
+<h2>Kuis Bab 1 – Kirakira Nihongo</h2>
 
-    <div id="questionBox"></div>
+<div id="soal"></div>
 
-    <button id="nextBtn" onclick="nextQuestion()">Selanjutnya</button>
-    <button id="finishBtn" onclick="finishQuiz()" style="display:none; background:#d9534f;">Selesai</button>
+<button onclick="kumpulkan()">Kumpulkan Jawaban</button>
+<div id="hasil"></div>
 
-    <div id="resultBox" style="display:none; margin-top:20px;">
-        <h3>Kuis Selesai!</h3>
-        <p id="scoreText"></p>
-        <a href="nilai.html">
-            <button style="background:#5cb85c;">Lihat Nilai</button>
-        </a>
-    </div>
+<button onclick="location.href='quiz.html'">Kembali ke Menu</button>
 </div>
 
-<script src="firebase.js"></script>
-<script>
-// ===============================
-// 35 SOAL BAB 1 – FORMAT bab3.html
-// ===============================
+<script type="module">
+import { saveScore } from "../firebase.js";
 
-const questions = [
-
-    // ===============================
-    // 10 KOSAKATA
-    // ===============================
-    { jp:"わたし", id:"saya", options:["dia","saya","itu","kamu"] },
-    { jp:"あなた", id:"kamu", options:["kami","dia","kamu","saya"] },
-    { jp:"かれ", id:"dia (laki-laki)", options:["dia (perempuan)","itu","dia (laki-laki)","kami"] },
-    { jp:"かのじょ", id:"dia (perempuan)", options:["dia (perempuan)","itu","dia (laki-laki)","kamu"] },
-    { jp:"せんせい", id:"guru", options:["murid","guru","pegawai","dokter"] },
-    { jp:"がくせい", id:"murid", options:["dokter","murid","guru","pegawai"] },
-    { jp:"かいしゃいん", id:"pegawai perusahaan", options:["pegawai perusahaan","guru","murid","dokter"] },
-    { jp:"にほんじん", id:"orang Jepang", options:["orang Amerika","orang Jepang","orang Indonesia","guru"] },
-    { jp:"アメリカじん", id:"orang Amerika", options:["pegawai","orang Jepang","orang Amerika","orang Indonesia"] },
-    { jp:"かばん", id:"tas", options:["buku","tas","kursi","meja"] },
-
-    // ===============================
-    // 10 PARTIKEL
-    // ===============================
-    { jp:"ミラーさん ___ かいしゃいん です。", id:"は", options:["が","は","を","に"] },
-    { jp:"サントスさん は がくせい ___ ありません。", id:"じゃ", options:["は","じゃ","に","を"] },
-    { jp:"あの ひと ___ どなた ですか。", id:"は", options:["を","に","は","が"] },
-    { jp:"グプタさん ___ かいしゃいん です。", id:"は", options:["も","は","を","に"] },
-    { jp:"わたし は ABC ___ しゃいん です。", id:"の", options:["は","の","を","に"] },
-    { jp:"これは ほん ___ です。", id:"です", options:["は","です","を","に"] },
-    { jp:"ミラーさん は アメリカ ___ きました。", id:"から", options:["で","から","に","まで"] },
-    { jp:"たなかさん は にほん ___ きました。", id:"へ", options:["を","へ","で","に"] },
-    { jp:"これは コンピューター ___ です。", id:"です", options:["に","は","です","を"] },
-    { jp:"わたし は にほんじん ___ です。", id:"です", options:["は","を","です","に"] },
-
-    // ===============================
-    // 10 SUSUN KATA (RAPI)
-    // ===============================
-    {
-      jp:"わたし / は / たなか / です",
-      id:"わたし は たなか です",
-      options:[
-        "たなか は わたし です",
-        "わたし は たなか です",
-        "です わたし は たなか",
-        "わたし です は たなか"
-      ]
-    },
-    {
-      jp:"ミラーさん / は / かいしゃいん / です",
-      id:"ミラーさん は かいしゃいん です",
-      options:[
-        "かいしゃいん は ミラーさん です",
-        "ミラーさん は かいしゃいん です",
-        "です ミラーさん は かいしゃいん",
-        "ミラーさん です は かいしゃいん"
-      ]
-    },
-    {
-      jp:"これは / ほん / です",
-      id:"これは ほん です",
-      options:[
-        "ほん は これは です",
-        "これは ほん です",
-        "です これは ほん",
-        "これは です ほん"
-      ]
-    },
-    {
-      jp:"かれ / は / がくせい / です",
-      id:"かれ は がくせい です",
-      options:[
-        "がくせい は かれ です",
-        "かれ は がくせい です",
-        "です かれ は がくせい",
-        "かれ です は がくせい"
-      ]
-    },
-    {
-      jp:"かのじょ / は / にほんじん / です",
-      id:"かのじょ は にほんじん です",
-      options:[
-        "かのじょ は にほんじん です",
-        "にほんじん は かのじょ です",
-        "です かのじょ は にほんじん",
-        "かのじょ です は にほんじん"
-      ]
-    },
-    {
-      jp:"あのひと / は / せんせい / です",
-      id:"あのひと は せんせい です",
-      options:[
-        "せんせい は あのひと です",
-        "あのひと は せんせい です",
-        "です あのひと は せんせい",
-        "あのひと です は せんせい"
-      ]
-    },
-    {
-      jp:"ABCかいしゃ / の / しゃいん / です",
-      id:"ABCかいしゃ の しゃいん です",
-      options:[
-        "しゃいん の ABCかいしゃ です",
-        "ABCかいしゃ の しゃいん です",
-        "です ABCかいしゃ の しゃいん",
-        "ABCかいしゃ です の しゃいん"
-      ]
-    },
-    {
-      jp:"これは / スミスさん / の / かばん",
-      id:"これは スミスさん の かばん",
-      options:[
-        "スミスさん は これは の かばん",
-        "これは スミスさん の かばん",
-        "かばん の スミスさん これは",
-        "これは の スミスさん かばん"
-      ]
-    },
-    {
-      jp:"まいにち / ９じ / に / いきます",
-      id:"まいにち ９じ に いきます",
-      options:[
-        "９じ まいにち に いきます",
-        "まいにち ９じ に いきます",
-        "いきます ９じ に まいにち",
-        "まいにち に ９じ いきます"
-      ]
-    },
-    {
-      jp:"IMCかいしゃ / へ / いきます / まいにち",
-      id:"まいにち IMCかいしゃ へ いきます",
-      options:[
-        "IMCかいしゃ まいにち へ いきます",
-        "まいにち IMCかいしゃ へ いきます",
-        "へ IMCかいしゃ まいにち いきます",
-        "いきます まいにち IMCかいしゃ へ"
-      ]
-    },
-
-    // ===============================
-    // 5 CERITA (KOSAKATA BAB 1)
-    // ===============================
-
-    // Cerita 1
-    {
-      jp:"スミスさんはアメリカじんです。ABCかいしゃのかいしゃいんです。",
-      id:"アメリカじん",
-      options:["アメリカじん","にほんじん","インドネシアじん","がくせい"]
-    },
-    {
-      jp:"スミスさんはなんのかいしゃのひとですか。",
-      id:"ABCかいしゃ",
-      options:["ABCかいしゃ","IMCかいしゃ","だいがく","がっこう"]
-    },
-
-    // Cerita 2
-    {
-      jp:"これはスミスさんのかばんです。あのあかいかばんはわたしのかばんです。",
-      id:"わたし",
-      options:["かれ","わたし","スミスさん","かのじょ"]
-    },
-    {
-      jp:"これはだれのかばんですか。",
-      id:"スミスさん",
-      options:["わたし","かのじょ","スミスさん","かれ"]
-    },
-
-    // Cerita 3
-    {
-      jp:"かのじょはにほんじんで、がくせいです。",
-      id:"にほんじん",
-      options:["にほんじん","アメリカじん","インドネシアじん","かいしゃいん"]
-    },
-    {
-      jp:"かのじょはなんのひとですか。",
-      id:"がくせい",
-      options:["がくせい","せんせい","かいしゃいん","だいがく"]
-    },
-
-    // Cerita 4
-    {
-      jp:"たなかさんはせんせいです。ABCだいがくでにほんごをおしえます。",
-      id:"にほんご",
-      options:["にほんご","えいご","ちゅうごくご","かいしゃ"]
-    },
-    {
-      jp:"たなかさんはどこではたらいていますか。",
-      id:"ABCだいがく",
-      options:["ABCだいがく","IMCかいしゃ","がっこう","びょういん"]
-    },
-
-    // Cerita 5
-    {
-      jp:"ミラーさんはIMCのかいしゃいんです。まいにち９じにかいしゃへいきます。",
-      id:"IMC",
-      options:["IMC","ABC","XYZ","にほん"]
-    },
-    {
-      jp:"ミラーさんはまいにちなんじにかいしゃへいきますか。",
-      id:"９じ",
-      options:["８じ","９じ","７じ","１０じ"]
-    }
-
+const soal = [
+  {q:"これは なんですか。", opts:["ほん","いぬ","ねこ","くるま"], ans:"a"},
+  {q:"それは なんですか。", opts:["つくえ","いす","かばん","ほん"], ans:"c"},
+  {q:"あれは なんですか。", opts:["でんわ","ほん","テレビ","ラジオ"], ans:"c"},
 ];
 
-// ===============================
-// LOGIC KUIS
-// ===============================
-
-let index = 0;
-let score = 0;
-
-function showQuestion() {
-    document.getElementById("progress").innerText = `Soal ${index+1} dari ${questions.length}`;
-    const q = questions[index];
-
-    let html = `<p><b>${q.jp}</b></p>`;
-    q.options.forEach(opt => {
-        html += `<label><input type="radio" name="answer" value="${opt}"> ${opt}</label><br>`;
+function render() {
+  const div = document.getElementById("soal");
+  soal.forEach((s,i)=>{
+    let html = `<div class='question'><b>${i+1}.</b> ${s.q}<div class='options'>`;
+    ["a","b","c","d"].forEach((l,j)=>{
+      html += `<label><input type='radio' name='q${i}' value='${l}'> ${l}) ${s.opts[j]}</label>`;
     });
-
-    document.getElementById("questionBox").innerHTML = html;
-
-    if (index === questions.length - 1) {
-        document.getElementById("nextBtn").style.display = "none";
-        document.getElementById("finishBtn").style.display = "inline-block";
-    }
+    html += "</div></div>";
+    div.innerHTML += html;
+  });
 }
-showQuestion();
+render();
 
-function nextQuestion() {
-    const selected = document.querySelector("input[name='answer']:checked");
-    if (!selected) return alert("Pilih jawaban dulu!");
+window.kumpulkan = function() {
+  let score = 0;
+  soal.forEach((s,i)=>{
+    const sel = document.querySelector(`input[name='q${i}']:checked`);
+    if(sel && sel.value === s.ans) score++;
+  });
+  document.getElementById("hasil").innerText = "Nilai: " + score;
 
-    if (selected.value === questions[index].id) score++;
-
-    index++;
-    showQuestion();
-}
-
-function finishQuiz() {
-    const selected = document.querySelector("input[name='answer']:checked");
-    if (selected && selected.value === questions[index].id) score++;
-
-    document.getElementById("questionBox").style.display = "none";
-    document.getElementById("nextBtn").style.display = "none";
-    document.getElementById("finishBtn").style.display = "none";
-
-    document.getElementById("resultBox").style.display = "block";
-    document.getElementById("scoreText").innerText = `Nilai Kamu: ${score} / ${questions.length}`;
-
-    saveScore(score);
-}
-
-function saveScore(score) {
-    const user = localStorage.getItem("username");
-    if (!user) return;
-
-    firebase.database().ref("nilai/" + user + "/bab1").set({
-        nilai: score,
-        tanggal: new Date().toISOString()
-    });
+  saveScore(1, score);
 }
 </script>
 
