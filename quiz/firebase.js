@@ -13,9 +13,6 @@ import {
     update
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// ===============================
-// KONFIGURASI FIREBASE
-// ===============================
 const firebaseConfig = {
     apiKey: "AIzaSyDCvxxaQuhu7APdXeK7rsHfp_G7jlyN6Ok",
     authDomain: "kira-kira-nihon-go.firebaseapp.com",
@@ -26,42 +23,30 @@ const firebaseConfig = {
     measurementId: "G-0K94MKWYCW"
 };
 
-// ===============================
-// INISIALISASI
-// ===============================
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getDatabase(app);
 
-// ===============================
-// FUNGSI REGISTER
-// ===============================
+// REGISTER
 export function registerUser(name, email, password) {
     return createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             const user = userCredential.user;
-
-            // Simpan data awal user
             set(ref(db, "users/" + user.uid), {
                 name: name,
                 email: email,
                 createdAt: new Date().toISOString()
             });
-
             return user;
         });
 }
 
-// ===============================
-// FUNGSI LOGIN
-// ===============================
+// LOGIN
 export function loginUser(email, password) {
     return signInWithEmailAndPassword(auth, email, password);
 }
 
-// ===============================
-// SIMPAN NILAI BAB
-// ===============================
+// SIMPAN NILAI PER BAB
 export function saveScore(bab, score) {
     onAuthStateChanged(auth, (user) => {
         if (user) {
