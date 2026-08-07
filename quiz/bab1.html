@@ -6,11 +6,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
-body { font-family:"Noto Sans JP"; background:#f7d2e2; padding:20px; }
+body { font-family:"Noto Sans JP"; background:#f7d2e2; padding:25px; }
 .container { max-width:800px; margin:auto; background:#fff; padding:25px; border-radius:20px; }
 .question { margin-bottom:15px; }
 .options label { display:block; }
-button { margin-top:20px; padding:12px; background:#2f3a56; color:white; border:none; border-radius:10px; }
+button { margin-top:20px; padding:12px; background:#2f3a56; color:white; border:none; border-radius:10px; cursor:pointer; }
 .result { margin-top:20px; font-weight:bold; }
 </style>
 </head>
@@ -19,10 +19,21 @@ button { margin-top:20px; padding:12px; background:#2f3a56; color:white; border:
 <div class="container">
 <h2>Kuis Bab 1 – Kirakira Nihongo</h2>
 
-<div id="soal"></div>
+<h3>A. Pilihan Ganda (20 soal)</h3>
+<div id="bagianA"></div>
 
-<button onclick="kumpulkan()">Kumpulkan Jawaban</button>
-<div id="hasil"></div>
+<h3>B. Isian (10 soal)</h3>
+<div id="bagianB"></div>
+
+<h3>C. Membaca Pendek (5 soal)</h3>
+<p>「ミラーさん は アメリカじん ですか。」 「はい、アメリカじん です。」</p>
+<div id="bagianC"></div>
+
+<h3>D. Susun Kalimat Acak (5 soal)</h3>
+<div id="bagianD"></div>
+
+<button id="submitBtn">Kumpulkan Jawaban</button>
+<div id="result" class="result"></div>
 
 <button onclick="location.href='quiz.html'">Kembali ke Menu</button>
 </div>
@@ -30,35 +41,106 @@ button { margin-top:20px; padding:12px; background:#2f3a56; color:white; border:
 <script type="module">
 import { saveScore } from "../firebase.js";
 
-const soal = [
-  {q:"これは なんですか。", opts:["ほん","いぬ","ねこ","くるま"], ans:"a"},
-  {q:"それは なんですか。", opts:["つくえ","いす","かばん","ほん"], ans:"c"},
-  {q:"あれは なんですか。", opts:["でんわ","ほん","テレビ","ラジオ"], ans:"c"},
+/* ============================
+   SOAL BAB 1
+============================ */
+
+const soalA = [
+  {q:"わたし＿＿ マイク・ミラー です。", opts:["は","を","に","が"], ans:"a"},
+  {q:"サントスさん は がくせい＿＿ ありません。", opts:["じゃ","は","を","に"], ans:"a"},
+  {q:"ミラーさん は アメリカじん＿＿ です。", opts:["は","を","に","が"], ans:"a"},
+  {q:"あの かた は どなた＿＿ ですか。", opts:["は","を","に","が"], ans:"a"},
+  {q:"これは IMC＿＿ しゃいんです。", opts:["の","に","を","が"], ans:"a"},
+  {q:"ブラウンさん＿＿ かいしゃいん です。", opts:["も","は","を","に"], ans:"a"},
+  {q:"わたし は かいしゃいん＿＿ ありません。", opts:["じゃ","は","を","に"], ans:"a"},
+  {q:"あの ひと は ミラーさん＿＿ です。", opts:["は","の","を","に"], ans:"a"},
+  {q:"これは なん＿＿ ですか。", opts:["です","の","か","は"], ans:"c"},
+  {q:"あの かた は せんせい＿＿ ですか。", opts:["は","を","に","が"], ans:"a"},
+  {q:"いいえ、せんせい＿＿ ありません。", opts:["じゃ","は","を","に"], ans:"a"},
+  {q:"ミラーさん は がくせい＿＿ ありません。", opts:["じゃ","は","を","に"], ans:"a"},
+  {q:"あれは だれ＿＿ かばんですか。", opts:["の","は","を","に"], ans:"a"},
+  {q:"この ひと＿＿ サントスさんです。", opts:["は","を","に","が"], ans:"a"},
+  {q:"わたし は にほんじん＿＿ ありません。", opts:["じゃ","は","を","に"], ans:"a"},
+  {q:"あの かた は ミラーさん＿＿ です。", opts:["は","の","を","に"], ans:"a"},
+  {q:"これは なんの ほん＿＿ ですか。", opts:["です","の","は","か"], ans:"d"},
+  {q:"これは にほんご＿＿ ほんです。", opts:["の","は","を","に"], ans:"a"},
+  {q:"あなた は せんせい＿＿ ですか。", opts:["は","を","に","が"], ans:"a"},
+  {q:"いいえ、わたし は せんせい＿＿ ありません。", opts:["じゃ","は","を","に"], ans:"a"},
 ];
 
-function render() {
-  const div = document.getElementById("soal");
-  soal.forEach((s,i)=>{
-    let html = `<div class='question'><b>${i+1}.</b> ${s.q}<div class='options'>`;
+const soalB = [
+  {q:"わたし＿＿ かいしゃいん です。", opts:["は","を","に","が"], ans:"a"},
+  {q:"サントスさん は がくせい＿＿ ありません。", opts:["じゃ","は","を","に"], ans:"a"},
+  {q:"あの かた は どなた＿＿ ですか。", opts:["は","を","に","が"], ans:"a"},
+  {q:"これは IMC＿＿ しゃいんです。", opts:["の","に","を","が"], ans:"a"},
+  {q:"ブラウンさん＿＿ かいしゃいん です。", opts:["も","は","を","に"], ans:"a"},
+  {q:"あれは だれ＿＿ かばんですか。", opts:["の","は","を","に"], ans:"a"},
+  {q:"これは なん＿＿ ですか。", opts:["です","の","は","か"], ans:"d"},
+  {q:"ミラーさん は アメリカじん＿＿ です。", opts:["は","を","に","が"], ans:"a"},
+  {q:"あなた は せんせい＿＿ ですか。", opts:["は","を","に","が"], ans:"a"},
+  {q:"いいえ、せんせい＿＿ ありません。", opts:["じゃ","は","を","に"], ans:"a"},
+];
+
+const soalC = [
+  {q:"Apa yang ditanyakan?", opts:["Kebangsaan Miller","Pekerjaan Miller","Umur Miller","Nama Miller"], ans:"a"},
+  {q:"“はい、アメリカじん です” berarti…", opts:["Ya, dia orang Amerika","Ya, dia guru","Tidak, dia bukan orang Amerika","Tidak tahu"], ans:"a"},
+  {q:"“ですか” digunakan untuk…", opts:["Membuat kalimat tanya","Menyatakan negatif","Menyatakan lampau","Menyatakan perintah"], ans:"a"},
+  {q:"“じゃありません” berarti…", opts:["Bukan","Ya","Mungkin","Tidak tahu"], ans:"a"},
+  {q:"“どなた” berarti…", opts:["Siapa (sopan)","Apa","Di mana","Kapan"], ans:"a"},
+];
+
+const soalD = [
+  {q:"は / わたし / ミラー / です", opts:["わたし は ミラー です","ミラー は わたし です","はミラー です わたし","わたし ミラー は です"], ans:"a"},
+  {q:"じゃ / がくせい / サントスさん / ありません / は", opts:["サントスさん は がくせい じゃ ありません","がくせい は サントスさん じゃ ありません","じゃありません サントスさん は がくせい","サントスさん がくせい は じゃありません"], ans:"a"},
+  {q:"の / IMC / ミラーさん / しゃいん / は / です", opts:["ミラーさん は IMC の しゃいん です","IMC は ミラーさん の しゃいん です","のIMC ミラーさん は しゃいん です","しゃいん は ミラーさん の IMC です"], ans:"a"},
+  {q:"か / です / アメリカじん / ミラーさん / は", opts:["ミラーさん は アメリカじん です か","アメリカじん は ミラーさん か です","はミラーさん か アメリカじん です","ミラーさん か は アメリカじん です"], ans:"a"},
+  {q:"も / ブラウンさん / かいしゃいん / は / です", opts:["ブラウンさん も かいしゃいん です","かいしゃいん は ブラウンさん も です","ブラウンさん は です も かいしゃいん","もです ブラウンさん は かいしゃいん"], ans:"a"},
+];
+
+/* ============================
+   RENDER SOAL
+============================ */
+
+function renderSection(id, data, prefix) {
+  const div = document.getElementById(id);
+  data.forEach((s,i)=>{
+    let html = `<div class='question'><b>${prefix}${i+1}.</b> ${s.q}<div class='options'>`;
     ["a","b","c","d"].forEach((l,j)=>{
-      html += `<label><input type='radio' name='q${i}' value='${l}'> ${l}) ${s.opts[j]}</label>`;
+      html += `<label><input type='radio' name='${prefix}${i}' value='${l}'> ${l}) ${s.opts[j]}</label>`;
     });
     html += "</div></div>";
     div.innerHTML += html;
   });
 }
-render();
 
-window.kumpulkan = function() {
+renderSection("bagianA", soalA, "A");
+renderSection("bagianB", soalB, "B");
+renderSection("bagianC", soalC, "C");
+renderSection("bagianD", soalD, "D");
+
+/* ============================
+   KUMPULKAN NILAI
+============================ */
+
+document.getElementById("submitBtn").onclick = function() {
   let score = 0;
-  soal.forEach((s,i)=>{
-    const sel = document.querySelector(`input[name='q${i}']:checked`);
-    if(sel && sel.value === s.ans) score++;
-  });
-  document.getElementById("hasil").innerText = "Nilai: " + score;
 
-  saveScore(1, score);
-}
+  function cek(data, prefix) {
+    data.forEach((s,i)=>{
+      const sel = document.querySelector(`input[name='${prefix}${i}']:checked`);
+      if(sel && sel.value === s.ans) score++;
+    });
+  }
+
+  cek(soalA,"A");
+  cek(soalB,"B");
+  cek(soalC,"C");
+  cek(soalD,"D");
+
+  document.getElementById("result").innerText = `Nilai kamu: ${score} / 40`;
+
+  saveScore(1, score); // SIMPAN NILAI BAB 1
+};
 </script>
 
 </body>
