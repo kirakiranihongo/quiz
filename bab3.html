@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Kuis Bab 3 – Kirakira Nihongo</title>
+<style>
+body { font-family:"Noto Sans JP"; background:#f7d2e2; padding:20px; }
+.container { max-width:800px; margin:auto; background:#fff; padding:25px; border-radius:20px; }
+.question { margin-bottom:15px; }
+.options label { display:block; }
+button { margin-top:20px; padding:12px; background:#2f3a56; color:white; border:none; border-radius:10px; }
+</style>
+</head>
+
+<body>
+<div class="container">
+<h2>Kuis Bab 3 – Kirakira Nihongo</h2>
+
+<div id="soal"></div>
+
+<button onclick="kumpulkan()">Kumpulkan Jawaban</button>
+<div id="hasil"></div>
+</div>
+
+<script>
+const soal = [
+  {q:"ここ＿＿ じむしょです。", opts:["は","を","に","が"], ans:"a"},
+  {q:"トイレは どこ＿＿ ですか。", opts:["は","に","です","で"], ans:"c"},
+  // (aku potong untuk testing, nanti kita pasang full)
+];
+
+function render() {
+  const div = document.getElementById("soal");
+  soal.forEach((s,i)=>{
+    let html = `<div class='question'><b>${i+1}.</b> ${s.q}<div class='options'>`;
+    ["a","b","c","d"].forEach((l,j)=>{
+      html += `<label><input type='radio' name='q${i}' value='${l}'> ${l}) ${s.opts[j]}</label>`;
+    });
+    html += "</div></div>";
+    div.innerHTML += html;
+  });
+}
+render();
+
+function kumpulkan() {
+  let score = 0;
+  soal.forEach((s,i)=>{
+    const sel = document.querySelector(`input[name='q${i}']:checked`);
+    if(sel && sel.value === s.ans) score++;
+  });
+  document.getElementById("hasil").innerText = "Nilai: " + score;
+}
+</script>
+
+</body>
+</html>
