@@ -10,7 +10,7 @@ body { font-family:"Noto Sans JP"; background:#f7d2e2; padding:25px; }
 .container { max-width:800px; margin:auto; background:#fff; padding:25px; border-radius:20px; }
 .question { margin-bottom:15px; }
 .options label { display:block; }
-button { margin-top:20px; padding:12px; background:#2f3a56; color:white; border:none; border-radius:10px; }
+button { margin-top:20px; padding:12px; background:#2f3a56; color:white; border:none; border-radius:10px; cursor:pointer; }
 .result { margin-top:20px; font-weight:bold; }
 </style>
 </head>
@@ -69,7 +69,7 @@ const soalA = [
 ];
 
 const soalB = [
-  {q:"＿＿は じむしょ ですか。", opts:["ここ","あそこ","こちら","どこ"], ans:"a"},
+  {q:"＿＿は じむしょ ですか.", opts:["ここ","あそこ","こちら","どこ"], ans:"a"},
   {q:"がっこうは ＿＿ですか。", opts:["どこ","どちら","あそこ","こちら"], ans:"b"},
   {q:"これは 日本＿＿ コンピューターです。", opts:["の","に","を","が"], ans:"a"},
   {q:"こちらは かいぎしつ＿＿ です。", opts:["は","に","を","で"], ans:"a"},
@@ -139,7 +139,7 @@ document.getElementById("submitBtn").onclick = function() {
 
   document.getElementById("result").innerText = `Nilai kamu: ${score} / 40`;
 
-  saveScore(3, score);
+  saveScore(3, score); // SIMPAN NILAI BAB 3
 };
 </script>
 
