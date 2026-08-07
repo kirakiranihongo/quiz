@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>Nilai Murid – Kirakira Nihongo</title>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="module" src="firebase.js"></script>
+
 <style>
 body {
   font-family:"Noto Sans JP",sans-serif;
@@ -11,7 +14,7 @@ body {
   padding:30px;
 }
 .container {
-  max-width:900px;margin:auto;background:#fff;padding:25px;border-radius:20px;
+  max-width:1000px;margin:auto;background:#fff;padding:25px;border-radius:20px;
   box-shadow:0 10px 30px rgba(0,0,0,0.15);
 }
 .badge {
@@ -29,11 +32,11 @@ button {
   <h2 style="color:#2f3a56;">Nilai Murid – Kirakira Nihongo</h2>
   <p id="nama"></p>
 
-  <h3>📘 Nilai Bab 1</h3>
-  <p id="nilai1"></p>
+  <h3>📘 Nilai Semua Bab (1–25)</h3>
+  <div id="nilaiList"></div>
 
-  <h3>📊 Grafik Nilai Bab 1</h3>
-  <canvas id="chartBab"></canvas>
+  <h3>📊 Grafik Semua Bab</h3>
+  <canvas id="chartAll"></canvas>
 
   <h3>🎌 Level Kirakira Nihongo</h3>
   <p id="level"></p>
@@ -50,44 +53,84 @@ button {
   <button onclick="location.href='quiz.html'">Kembali ke Menu</button>
 </div>
 
-<script>
-document.getElementById("nama").innerText="Nama: "+(localStorage.getItem("murid")||"Belum login");
+<script type="module">
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { get, ref } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-let nilaiBab1 = parseInt(localStorage.getItem("nilai_bab1")||0);
-document.getElementById("nilai1").innerText = nilaiBab1 + " / 35";
+const totalBab = 25;
 
-// Grafik batang Bab 1
-new Chart(document.getElementById("chartBab"), {
-  type: 'bar',
-  data: {
-    labels: ["Bab 1"],
-    datasets: [{
-      label: "Nilai",
-      data: [nilaiBab1],
-      backgroundColor: "#f7a8b8"
-    }]
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    document.getElementById("nama").innerText = "Silakan login terlebih dahulu.";
+    return;
   }
+
+  document.getElementById("nama").innerText = "Nama: " + user.email;
+
+  const nilaiListDiv = document.getElementById("nilaiList");
+  const nilaiSemuaBab = [];
+
+  const snap = await get(ref(db, "nilai/" + user.uid));
+
+  for (let i = 1; i <= totalBab; i++) {
+    const babKey = "bab" + i;
+    const data = snap.child(babKey).val();
+
+    const nilai = data ? data.nilai : 0;
+    nilaiSemuaBab.push(nilai);
+
+    nilaiListDiv.innerHTML += `
+      <p><b>Bab ${i}:</b> ${nilai > 0 ? nilai : "Belum ada nilai"}</p>
+    `;
+  }
+
+  // Grafik semua bab
+  new Chart(document.getElementById("chartAll"), {
+    type: 'bar',
+    data: {
+      labels: Array.from({length: totalBab}, (_,i)=>"Bab "+(i+1)),
+      datasets: [{
+        label: "Nilai",
+        data: nilaiSemuaBab,
+        backgroundColor: "#f7a8b8"
+      }]
+    }
+  });
+
+  // Progress
+  const babSelesai = nilaiSemuaBab.filter(n => n > 0).length;
+  const progressPersen = Math.round((babSelesai / totalBab) * 100);
+  document.getElementById("progress").innerText = `${babSelesai} dari ${totalBab} bab selesai (${progressPersen}%)`;
+
+  // Level otomatis
+  const totalNilai = nilaiSemuaBab.reduce((a,b)=>a+b,0);
+  let level = "Level Sakura 1";
+
+  if (totalNilai >= 600) level = "Level Sakura 5";
+  else if (totalNilai >= 500) level = "Level Sakura 4";
+  else if (totalNilai >= 400) level = "Level Sakura 3";
+  else if (totalNilai >= 300) level = "Level Sakura 2";
+
+  document.getElementById("level").innerText = level;
+
+  // Badge otomatis
+  const badgeBox = document.getElementById("badgeBox");
+
+  if (progressPersen >= 100) badgeBox.innerHTML += `<span class="badge">Master Kirakira</span>`;
+  if (progressPersen >= 50) badgeBox.innerHTML += `<span class="badge">Halfway Hero</span>`;
+  if (babSelesai >= 1) badgeBox.innerHTML += `<span class="badge">First Step</span>`;
+
+  // Ranking otomatis
+  let rank = "Pemula Kirakira";
+  if (totalNilai >= 600) rank = "Samurai Nihongo";
+  else if (totalNilai >= 450) rank = "Fuji Learner";
+  else if (totalNilai >= 300) rank = "Sakura Learner";
+
+  document.getElementById("rank").innerText = rank;
 });
-
-// Level
-let level = nilaiBab1 >= 30 ? "Level Sakura 2" : "Level Sakura 1";
-document.getElementById("level").innerText = level;
-
-// Badge
-let badgeBox = document.getElementById("badgeBox");
-if (nilaiBab1 >= 30) badgeBox.innerHTML += `<span class="badge">Perfect Bab 1</span>`;
-if (nilaiBab1 >= 20) badgeBox.innerHTML += `<span class="badge">Bab 1 Completed</span>`;
-
-// Progress
-document.getElementById("progress").innerText = "1 dari 25 bab selesai (4%)";
-
-// Ranking pribadi
-let rank = nilaiBab1 >= 30 ? "Samurai Nihongo" :
-           nilaiBab1 >= 25 ? "Fuji Learner" :
-           nilaiBab1 >= 15 ? "Sakura Learner" :
-           "Pemula Kirakira";
-document.getElementById("rank").innerText = rank;
 </script>
 
 </body>
 </html>
+
