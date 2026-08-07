@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Kuis Bab 2 – Kirakira Nihongo</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+    font-family: "Noto Sans JP", sans-serif;
+    background: #f7dde2;
+    padding: 20px;
+}
+.container {
+    max-width: 700px;
+    margin: auto;
+    background: #fff;
+    padding: 25px;
+    border-radius: 20px;
+}
+button {
+    padding: 12px 20px;
+    background: #2f3a56;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+button:hover {
+    background: #445075;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Kuis Bab 2 – Kirakira Nihongo</h2>
+    <p id="progress"></p>
+
+    <div id="questionBox"></div>
+
+    <button id="nextBtn" onclick="nextQuestion()">Selanjutnya</button>
+    <button id="finishBtn" onclick="finishQuiz()" style="display:none; background:#d9534f;">Selesai</button>
+
+    <div id="resultBox" style="display:none; margin-top:20px;">
+        <h3>Kuis Selesai!</h3>
+        <p id="scoreText"></p>
+        <a href="nilai.html">
+            <button style="background:#5cb85c;">Lihat Nilai</button>
+        </a>
+    </div>
+</div>
+
+<script type="module" src="firebase.js"></script>
+
+<script>
+// ===============================
+// SOAL BAB 2 – Kirakira Nihongo
+// ===============================
+
+const questions = [
+
+    { jp:"これは なんですか。", id:"ほん", options:["ほん","かばん","えんぴつ","ボールペン"] },
+    { jp:"それは だれの かさですか。", id:"ミラーさん", options:["ミラーさん","ケンさん","アンダさん","シュミットさん"] },
+    { jp:"あれは なんですか。", id:"じしょ", options:["じしょ","ほん","かばん","ボールペン"] },
+    { jp:"この ほんは だれの ですか。", id:"わたし", options:["わたし","あなた","ミラーさん","ケンさん"] },
+    { jp:"その かばんは だれの ですか。", id:"あなた", options:["あなた","わたし","ミラーさん","ケンさん"] },
+    { jp:"あの ひとは だれですか。", id:"ミラーさん", options:["ミラーさん","ケンさん","アンダさん","シュミットさん"] },
+    { jp:"これは わたしの えんぴつです。", id:"えんぴつ", options:["えんぴつ","ボールペン","かさ","ほん"] },
+    { jp:"それは コンピューター の ほんですか。", id:"はい", options:["はい","いいえ","ちがいます","そうです"] },
+    { jp:"あれは IMC の しゃいんですか。", id:"はい", options:["はい","いいえ","ちがいます","そうです"] },
+    { jp:"この かばんは あなたの ですか。", id:"いいえ", options:["いいえ","はい","そうです","ちがいます"] },
+
+    { jp:"これは 「7」か「9」 ですか。", id:"7", options:["7","9","どちらでもない","わかりません"] },
+    { jp:"それは ボールペン ですか。", id:"いいえ", options:["いいえ","はい","そうです","ちがいます"] },
+    { jp:"あれは だれの かばんですか。", id:"ケンさん", options:["ケンさん","ミラーさん","あなた","わたし"] },
+    { jp:"この ほんは コンピューター の ほんです。", id:"コンピューター", options:["コンピューター","にほんご","えいご","かいしゃ"] },
+    { jp:"それは わたしの かさです。", id:"かさ", options:["かさ","ほん","じしょ","ボールペン"] },
+
+    { jp:"これは じしょ ですか。", id:"そうです", options:["そうです","ちがいます","はい","いいえ"] },
+    { jp:"それは ミラーさんの ですか。", id:"ちがいます", options:["ちがいます","そうです","はい","いいえ"] },
+    { jp:"あれは アンダさんの かさですか。", id:"いいえ", options:["いいえ","はい","そうです","ちがいます"] },
+    { jp:"いいえ、シュミットさんの です。", id:"シュミットさん", options:["シュミットさん","アンダさん","ミラーさん","ケンさん"] },
+    { jp:"そうですか。", id:"mengerti", options:["mengerti","tidak tahu","setuju","menolak"] },
+
+    { jp:"これは ボールペン ですか。", id:"ちがいます", options:["ちがいます","そうです","はい","いいえ"] },
+    { jp:"それは えんぴつ ですか。", id:"はい", options:["はい","いいえ","そうです","ちがいます"] },
+    { jp:"あれは IMC の しゃいん ですか。", id:"そうです", options:["そうです","ちがいます","はい","いいえ"] },
+    { jp:"これは わたしの かばん ですか。", id:"いいえ", options:["いいえ","はい","そうです","ちがいます"] },
+    { jp:"それは あなたの ですか。", id:"はい", options:["はい","いいえ","そうです","ちがいます"] },
+
+    {
+      jp:"これ / は / わたし / の / ほん",
+      id:"これは わたしの ほん",
+      options:[
+        "これは わたしの ほん",
+        "わたし は これは のほん",
+        "ほんは これ のわたし",
+        "これは のほん わたし"
+      ]
+    },
+
+    {
+      jp:"あれ / は / ミラーさん / の / かばん",
+      id:"あれは ミラーさん の かばん",
+      options:[
+        "あれは ミラーさん の かばん",
+        "ミラーさん は あれ のかばん",
+        "かばん の あれ ミラーさん",
+        "あれ の ミラーさん かばん"
+      ]
+    },
+
+    {
+      jp:"それ / は / コンピューター / の / ほん",
+      id:"それは コンピューター の ほん",
+      options:[
+        "それは コンピューター の ほん",
+        "コンピューター は それ のほん",
+        "ほん の コンピューター それ",
+        "それ のほん コンピューター"
+      ]
+    },
+
+    {
+      jp:"この / かさ / は / あなた / の",
+      id:"この かさ は あなた の",
+      options:[
+        "この かさ は あなた の",
+        "あなた は この のかさ",
+        "かさ の あなた この",
+        "この のあなた かさ"
+      ]
+    },
+
+    {
+      jp:"あの / ひと / は / IMC / の / しゃいん",
+      id:"あの ひと は IMC の しゃいん",
+      options:[
+        "あの ひと は IMC の しゃいん",
+        "IMC は あの のひと しゃいん",
+        "しゃいん の あのひと IMC",
+        "あのIMC の ひと しゃいん"
+      ]
+    },
+
+    {
+      jp:"これは / えんぴつ / です / か",
+      id:"これは えんぴつ です か",
+      options:[
+        "これは えんぴつ です か",
+        "えんぴつ は これは かです",
+        "です これは えんぴつ か",
+        "これは か えんぴつ です"
+      ]
+    },
+
+    {
+      jp:"それ / は / ボールペン / です",
+      id:"それは ボールペン です",
+      options:[
+        "それは ボールペン です",
+        "ボールペン は それ です",
+        "です それ ボールペン",
+        "それ ボールペン は です"
+      ]
+    },
+
+    {
+      jp:"あれ / は / じしょ / です",
+      id:"あれは じしょ です",
+      options:[
+        "あれは じしょ です",
+        "じしょ は あれ です",
+        "です あれ じしょ",
+        "あれ です じしょ"
+      ]
+    },
+
+    {
+      jp:"この / ほん / は / コンピューター / の",
+      id:"この ほん は コンピューター の",
+      options:[
+        "この ほん は コンピューター の",
+        "コンピューター は この のほん",
+        "ほん の コンピューター この",
+        "この のコンピューター ほん"
+      ]
+    },
+
+    {
+      jp:"それ / は / わたし / の / かばん",
+      id:"それは わたし の かばん",
+      options:[
+        "それは わたし の かばん",
+        "わたし は それ のかばん",
+        "かばん の わたし それ",
+        "それ のかばん わたし"
+      ]
+    }
+
+];
+
+// ===============================
+// LOGIC KUIS BAB 2
+// ===============================
+
+let index = 0;
+let score = 0;
+
+function showQuestion() {
+    document.getElementById("progress").innerText = `Soal ${index+1} dari ${questions.length}`;
+    const q = questions[index];
+
+    let html = `<p><b>${q.jp}</b></p>`;
+    q.options.forEach(opt => {
+        html += `<label><input type="radio" name="answer" value="${opt}"> ${opt}</label><br>`;
+    });
+
+    document.getElementById("questionBox").innerHTML = html;
+
+    if (index === questions.length - 1) {
+        document.getElementById("nextBtn").style.display = "none";
+        document.getElementById("finishBtn").style.display = "inline-block";
+    }
+}
+showQuestion();
+
+function nextQuestion() {
+    const selected = document.querySelector("input[name='answer']:checked");
+    if (!selected) return alert("Pilih jawaban dulu!");
+
+    if (selected.value === questions[index].id) score++;
+
+    index++;
+    showQuestion();
+}
+
+function finishQuiz() {
+    const selected = document.querySelector("input[name='answer']:checked");
+    if (selected && selected.value === questions[index].id) score++;
+
+    document.getElementById("questionBox").style.display = "none";
+    document.getElementById("nextBtn").style.display = "none";
+    document.getElementById("finishBtn").style.display = "none";
+
+    document.getElementById("resultBox").style.display = "block";
+    document.getElementById("scoreText").innerText = `Nilai Kamu: ${score} / ${questions.length}`;
+
+    saveScore(score);
+}
+
+// ===============================
+// SIMPAN NILAI KE FIREBASE (BAB 2)
+// ===============================
+
+function saveScore(score) {
+    const user = localStorage.getItem("username");
+    if (!user) return;
+
+    firebase.database().ref("nilai/" + user + "/bab2").set({
+        nilai: score,
+        tanggal: new Date().toISOString()
+    });
+}
+
+</script>
+
+</body>
+</html>
