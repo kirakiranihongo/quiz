@@ -23,6 +23,9 @@ body {
 button {
   margin-top:20px;padding:12px;border-radius:10px;border:none;background:#2f3a56;color:white;cursor:pointer;
 }
+canvas {
+  margin-bottom:40px;
+}
 </style>
 </head>
 
@@ -37,6 +40,9 @@ button {
 
   <h3>📊 Grafik Semua Bab</h3>
   <canvas id="chartAll"></canvas>
+
+  <h3>📊 Grafik Per Bab</h3>
+  <div id="grafikPerBab"></div>
 
   <h3>🎌 Level Kirakira Nihongo</h3>
   <p id="level"></p>
@@ -85,7 +91,9 @@ onAuthStateChanged(auth, async (user) => {
     `;
   }
 
-  // Grafik semua bab
+  // ===============================
+  // GRAFIK SEMUA BAB
+  // ===============================
   new Chart(document.getElementById("chartAll"), {
     type: 'bar',
     data: {
@@ -98,12 +106,43 @@ onAuthStateChanged(auth, async (user) => {
     }
   });
 
-  // Progress
+  // ===============================
+  // GRAFIK PER BAB
+  // ===============================
+  const grafikContainer = document.getElementById("grafikPerBab");
+
+  for (let i = 1; i <= totalBab; i++) {
+    if (nilaiSemuaBab[i-1] > 0) {
+
+      grafikContainer.innerHTML += `
+        <h4>Grafik Bab ${i}</h4>
+        <canvas id="chartBab${i}"></canvas>
+      `;
+
+      new Chart(document.getElementById(`chartBab${i}`), {
+        type: 'bar',
+        data: {
+          labels: [`Bab ${i}`],
+          datasets: [{
+            label: `Nilai Bab ${i}`,
+            data: [nilaiSemuaBab[i-1]],
+            backgroundColor: "#a8d8f7"
+          }]
+        }
+      });
+    }
+  }
+
+  // ===============================
+  // PROGRESS
+  // ===============================
   const babSelesai = nilaiSemuaBab.filter(n => n > 0).length;
   const progressPersen = Math.round((babSelesai / totalBab) * 100);
   document.getElementById("progress").innerText = `${babSelesai} dari ${totalBab} bab selesai (${progressPersen}%)`;
 
-  // Level otomatis
+  // ===============================
+  // LEVEL
+  // ===============================
   const totalNilai = nilaiSemuaBab.reduce((a,b)=>a+b,0);
   let level = "Level Sakura 1";
 
@@ -114,14 +153,18 @@ onAuthStateChanged(auth, async (user) => {
 
   document.getElementById("level").innerText = level;
 
-  // Badge otomatis
+  // ===============================
+  // BADGE
+  // ===============================
   const badgeBox = document.getElementById("badgeBox");
 
   if (progressPersen >= 100) badgeBox.innerHTML += `<span class="badge">Master Kirakira</span>`;
   if (progressPersen >= 50) badgeBox.innerHTML += `<span class="badge">Halfway Hero</span>`;
   if (babSelesai >= 1) badgeBox.innerHTML += `<span class="badge">First Step</span>`;
 
-  // Ranking otomatis
+  // ===============================
+  // RANKING
+  // ===============================
   let rank = "Pemula Kirakira";
   if (totalNilai >= 600) rank = "Samurai Nihongo";
   else if (totalNilai >= 450) rank = "Fuji Learner";
@@ -133,4 +176,3 @@ onAuthStateChanged(auth, async (user) => {
 
 </body>
 </html>
-
